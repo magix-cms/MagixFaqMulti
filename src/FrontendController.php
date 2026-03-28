@@ -5,6 +5,7 @@ namespace Plugins\MagixFaqMulti\src;
 
 use Plugins\MagixFaqMulti\db\FaqMultiFrontDb;
 use Magepattern\Component\Tool\SmartyTool;
+use App\Frontend\Model\SeoHelper; // 🟢 Import du Helper SEO
 
 class FrontendController
 {
@@ -31,21 +32,31 @@ class FrontendController
 
             if (empty($faqs)) return '';
 
-            // 4. Chemin du template
+            // 🟢 4. GÉNÉRATION DU SEO JSON-LD (Formatage générique)
+            $seoData = [];
+            foreach ($faqs as $faq) {
+                $seoData[] = [
+                    'question' => $faq['title_faqmulti'],
+                    'answer'   => $faq['desc_faqmulti']
+                ];
+            }
+            $faqJsonLd = SeoHelper::generateFaqJsonLd($seoData);
+
+            // 5. Chemin du template
             $template = ROOT_DIR . 'plugins' . DS . 'MagixFaqMulti' . DS . 'views' . DS . 'front' . DS . 'widget.tpl';
 
             if (!file_exists($template)) return '';
 
-            // 5. Rendu (On encapsule les données proprement)
+            // 6. Rendu (On ajoute la clé 'seo' aux données transmises)
             return $view->fetch($template, [
                 'magix_faqmulti_data' => [
                     'module' => $itemType,
-                    'items'  => $faqs
+                    'items'  => $faqs,
+                    'seo'    => $faqJsonLd // 🟢 Injecté dans le widget
                 ]
             ]);
 
         } catch (\Throwable $e) {
-            // Silencieux en front, on évite de casser la page en cas d'erreur
             return "";
         }
     }
