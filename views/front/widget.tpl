@@ -2,7 +2,7 @@
     {* 🟢 Injection du JSON-LD (Schema FAQPage) pour le SEO Google *}
     {$magix_faqmulti_data.seo nofilter}
 
-    <div class="magix-faqmulti-widget my-5">
+    <div class="magix-faqmulti-widget my-5 bg-body-tertiary">
 
         <div class="d-flex align-items-center mb-4">
             <i class="bi bi-patch-question fs-2 text-primary me-3"></i>
@@ -37,7 +37,7 @@
                          aria-labelledby="{$headingId}"
                          data-bs-parent="#faqAccordion_{$magix_faqmulti_data.module}">
 
-                        <div class="accordion-body text-muted bg-light">
+                        <div class="accordion-body text-muted bg-body">
                             {* nofilter est vital ici car la réponse est formatée via TinyMCE *}
                             {$faq.desc_faqmulti nofilter}
                         </div>
