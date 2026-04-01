@@ -6,7 +6,6 @@ namespace Plugins\MagixFaqMulti;
 use App\Component\Hook\HookManager;
 use Magepattern\Component\Tool\SmartyTool;
 use Plugins\MagixFaqMulti\db\FaqMultiDb;
-use Plugins\MagixFaqMulti\src\FrontendController;
 
 class Boot
 {
@@ -37,14 +36,11 @@ class Boot
                 $smarty = SmartyTool::getInstance('admin');
                 $itemId = (int)($params[$idKey] ?? 0);
 
-                // On n'affiche pas la FAQ si on est en train de "Créer" un élément (ID = 0)
                 if ($itemId <= 0) {
                     return '';
                 }
 
                 $db = new FaqMultiDb();
-
-                // On récupère la langue par défaut définie dans Smarty par le contrôleur principal
                 $idLangDefault = (int)($smarty->getTemplateVars('defaultLang')['id_lang'] ?? 1);
 
                 $smarty->assign([
@@ -52,31 +48,12 @@ class Boot
                     'faq_item_id'   => $itemId,
                     'faqs'          => $db->fetchFaqByItem($module, $itemId, $idLangDefault),
                     'langs'         => $db->fetchLanguages(),
-                    'hashtoken'     => $smarty->getTemplateVars('hashtoken') // On récupère le token déjà généré
+                    'hashtoken'     => $smarty->getTemplateVars('hashtoken')
                 ]);
 
                 $file = ROOT_DIR . 'plugins' . DS . 'MagixFaqMulti' . DS . 'views' . DS . 'admin' . DS . 'hooks' . DS . 'tab_content.tpl';
                 return $smarty->templateExists($file) ? $smarty->fetch($file) : '';
             });
         }
-
-        // ==========================================
-        // 2. HOOKS FRONTEND (Côté public)
-        // ==========================================
-        HookManager::register('displayPageBottom', 'MagixFaqMulti', function(array $params) {
-            return FrontendController::renderWidget($params, 'pages', 'id_pages');
-        });
-
-        HookManager::register('displayProductExtraContent', 'MagixFaqMulti', function(array $params) {
-            return FrontendController::renderWidget($params, 'product', 'id_product');
-        });
-
-        HookManager::register('displayCategoryBottom', 'MagixFaqMulti', function(array $params) {
-            return FrontendController::renderWidget($params, 'category', 'id_cat');
-        });
-
-        HookManager::register('displayNewsBottom', 'MagixFaqMulti', function(array $params) {
-            return FrontendController::renderWidget($params, 'news', 'id_news');
-        });
     }
 }
