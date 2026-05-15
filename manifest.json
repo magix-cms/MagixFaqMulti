@@ -1,10 +1,19 @@
 {
   "name": "MagixFaqMulti",
   "version": "1.0.0",
-  "description": "Ajoute des onglets de Faq multiples dynamiques (FAQ, caractéristiques, etc.) sur les fiches des modules (Produits, Pages, Catégories).",
+  "description": "Ajoute de Faq multiples dynamiques (FAQ, caractéristiques, etc.) sur les fiches des modules (Produits, Pages, Catégories).",
   "author": "Gerits Aurelien (Magix CMS)",
   "type": "widget",
   "has_config": false,
+  "core_targets": {
+    "home": 0,
+    "pages": 1,
+    "news": 0,
+    "catalog": 0,
+    "category": 1,
+    "product": 1,
+    "about": 0
+  },
   "default_hooks": [
     "displayProductExtraContent",
     "displayPageBottom",

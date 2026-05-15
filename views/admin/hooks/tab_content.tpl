@@ -28,7 +28,7 @@
                     </div>
                 </div>
 
-                {* 🟢 NOUVEAU : On utilise un vrai formulaire pour que le JS puisse tout capturer d'un coup *}
+                {*  NOUVEAU : On utilise un vrai formulaire pour que le JS puisse tout capturer d'un coup *}
                 <form id="faq_form_element">
                     <input type="hidden" id="faq_id_faqmulti" name="id_faqmulti" value="0">
 

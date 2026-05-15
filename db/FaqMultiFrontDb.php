@@ -18,7 +18,9 @@ class FaqMultiFrontDb extends BaseDb
      */
     public function getPublishedFaqs(string $itemType, int $itemId, int $idLang): array
     {
+        $cache = $this->getSqlCache();
         $qb = new QueryBuilder();
+
         $qb->select([
             'f.id_faqmulti',
             'fc.title_faqmulti',
@@ -29,9 +31,23 @@ class FaqMultiFrontDb extends BaseDb
             ->where('f.item_type = :item_type', ['item_type' => $itemType])
             ->where('f.item_id = :item_id', ['item_id' => $itemId])
             ->where('fc.id_lang = :id_lang', ['id_lang' => $idLang])
-            ->where('fc.published_faqmulti = 1') // 🟢 Sécurité absolue
+            ->where('fc.published_faqmulti = 1') //  Sécurité absolue
             ->orderBy('f.order_faqmulti', 'ASC'); // Tri respectant le Drag&Drop
 
-        return $this->executeAll($qb) ?: [];
+        // Génération de la clé avec un TAG unique
+        $cacheKey = $cache->generateKey($qb->getSql(), $qb->getParams(), 'magixfaqmulti');
+
+        // Vérification du cache
+        if (($data = $cache->get($cacheKey)) !== null) {
+            return $data;
+        }
+
+        // Si non trouvé, on exécute
+        $results = $this->executeAll($qb) ?: [];
+
+        // Mise en cache pour 24h
+        $cache->set($cacheKey, $results, 86400);
+
+        return $results;
     }
 }

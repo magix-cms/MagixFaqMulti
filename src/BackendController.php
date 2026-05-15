@@ -8,6 +8,7 @@ use Plugins\MagixFaqMulti\db\FaqMultiDb;
 use Magepattern\Component\HTTP\Request;
 use Magepattern\Component\Tool\SmartyTool;
 use Magepattern\Component\Tool\FormTool;
+use App\Component\Cache\CacheManager; // Import du gestionnaire de cache
 
 class BackendController extends BaseController
 {
@@ -39,7 +40,6 @@ class BackendController extends BaseController
         $db = new FaqMultiDb();
         $faqs = $db->fetchFaqByItem($itemType, $itemId, $idLang);
 
-        // 🟢 NOUVEAU : On injecte les traductions complètes pour le JS
         foreach ($faqs as &$faq) {
             $fullData = $db->fetchFaqById((int)$faq['id_faqmulti']);
             $faq['content'] = $fullData['content'] ?? [];
@@ -56,7 +56,7 @@ class BackendController extends BaseController
             'item_type'    => $itemType,
             'item_id'      => $itemId,
             'hashtoken'    => $this->session->getToken(),
-            'langs'        => $db->fetchLanguages() // Utile pour d'éventuels sous-menus
+            'langs'        => $db->fetchLanguages()
         ]);
 
         $this->view->display('ajax/manager.tpl');
@@ -87,12 +87,10 @@ class BackendController extends BaseController
                 if (!$idFaq) $this->jsonResponse(false, 'Erreur de création de la structure.');
             }
 
-            // 🟢 NOUVEAU : Traitement de la boucle des langues
             if (isset($_POST['title_faqmulti']) && is_array($_POST['title_faqmulti'])) {
                 foreach ($_POST['title_faqmulti'] as $idLang => $title) {
                     $cleanTitle = FormTool::simpleClean($title);
 
-                    // On ne sauvegarde que si un titre est défini pour cette langue
                     if (!empty($cleanTitle)) {
                         $db->saveFaqContent($idFaq, (int)$idLang, [
                             'title_faqmulti'     => $cleanTitle,
@@ -102,6 +100,9 @@ class BackendController extends BaseController
                     }
                 }
             }
+
+            // Invalidation du cache après sauvegarde
+            CacheManager::clearFrontend('magixfaqmulti');
 
             $this->jsonResponse(true, 'Enregistrement réussi.');
         } catch (\Exception $e) {
@@ -123,6 +124,8 @@ class BackendController extends BaseController
         if ($idFaq > 0) {
             $db = new FaqMultiDb();
             if ($db->deleteFaq($idFaq)) {
+                // Invalidation du cache après suppression
+                CacheManager::clearFrontend('magixfaqmulti');
                 $this->jsonResponse(true, 'Question supprimée avec succès.');
             }
         }
@@ -143,6 +146,8 @@ class BackendController extends BaseController
         if (!empty($orderedIds) && is_array($orderedIds)) {
             $db = new FaqMultiDb();
             if ($db->reorderFaq($orderedIds)) {
+                // Invalidation du cache après réorganisation
+                CacheManager::clearFrontend('magixfaqmulti');
                 $this->jsonResponse(true, 'Ordre mis à jour.');
             }
         }

@@ -1,5 +1,5 @@
 {if !empty($magix_faqmulti_data.items)}
-    {* 🟢 Injection du JSON-LD (Schema FAQPage) pour le SEO Google *}
+    {*  Injection du JSON-LD (Schema FAQPage) pour le SEO Google *}
     {$magix_faqmulti_data.seo nofilter}
 
     <div class="magix-faqmulti-widget my-5 bg-body-tertiary">

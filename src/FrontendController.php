@@ -6,26 +6,42 @@ namespace Plugins\MagixFaqMulti\src;
 use Plugins\MagixFaqMulti\db\FaqMultiFrontDb;
 use Magepattern\Component\Tool\SmartyTool;
 use App\Frontend\Model\SeoHelper;
+use App\Component\Db\PluginDb;
 
 class FrontendController
 {
+    private static array $targetsCache = [];
+
     /**
      * Le routeur dynamique appelé par HookManager
      */
     public static function renderWidget(array $params = []): string
     {
+        // 1. Initialisation du coupe-circuit
+        if (empty(self::$targetsCache)) {
+            $pluginDb = new PluginDb();
+            self::$targetsCache = $pluginDb->getPluginTargets('MagixFaqMulti');
+        }
+
+        if (empty(self::$targetsCache)) return '';
+
         $hookName = $params['name'] ?? '';
 
+        // 2. Vérifications conditionnelles par contexte
         if ($hookName === 'displayPageBottom') {
+            if (empty(self::$targetsCache['pages'])) return '';
             return self::processRender($params, 'pages', 'id_pages');
         }
         if ($hookName === 'displayProductExtraContent') {
+            if (empty(self::$targetsCache['product'])) return '';
             return self::processRender($params, 'product', 'id_product');
         }
         if ($hookName === 'displayCategoryBottom') {
+            if (empty(self::$targetsCache['category'])) return '';
             return self::processRender($params, 'category', 'id_cat');
         }
         if ($hookName === 'displayNewsBottom') {
+            if (empty(self::$targetsCache['news'])) return '';
             return self::processRender($params, 'news', 'id_news');
         }
 
