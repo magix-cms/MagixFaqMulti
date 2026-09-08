@@ -1,13 +1,16 @@
 {if !empty($magix_faqmulti_data.items)}
-    {*  Injection du JSON-LD (Schema FAQPage) pour le SEO Google *}
+    {* Injection du JSON-LD (Schema FAQPage) pour le SEO Google *}
     {$magix_faqmulti_data.seo nofilter}
 
-    <div class="magix-faqmulti-widget my-5 bg-body-tertiary">
+    {* Remplacement de la div par une balise <section> sémantique *}
+    <section class="magix-faqmulti-widget my-5 bg-body-tertiary">
 
-        <div class="d-flex align-items-center mb-4">
-            <i class="bi bi-patch-question fs-2 text-primary me-3"></i>
-            <h3 class="h4 mb-0 fw-bold">{#faq_title#|default:'Foire Aux Questions'}</h3>
-        </div>
+        <header class="d-flex align-items-center mb-4">
+            {* Ajout de aria-hidden pour masquer l'icône décorative aux robots/lecteurs *}
+            <i class="bi bi-patch-question fs-2 text-primary me-3" aria-hidden="true"></i>
+            {* Titre principal de la section FAQ *}
+            <h2 class="h4 mb-0 fw-bold">{#faq_title#|default:'Foire aux questions'} : {$pages.name}</h2>
+        </header>
 
         <div class="accordion shadow-sm" id="faqAccordion_{$magix_faqmulti_data.module}">
 
@@ -19,9 +22,11 @@
                 {* On ouvre le tout premier élément de la liste par défaut *}
                 {assign var="isOpen" value=$faq@first}
 
-                <div class="accordion-item border-0 border-bottom">
+                {* Utilisation de <article> pour définir un contenu indépendant et lisible par les IA *}
+                <article class="accordion-item border-0 border-bottom">
 
-                    <h2 class="accordion-header" id="{$headingId}">
+                    {* Correction de la hiérarchie : on passe de h2 à h3 pour respecter le h2 parent *}
+                    <h3 class="accordion-header" id="{$headingId}">
                         <button class="accordion-button fw-medium {if !$isOpen}collapsed{/if} bg-transparent"
                                 type="button"
                                 data-bs-toggle="collapse"
@@ -30,7 +35,7 @@
                                 aria-controls="{$collapseId}">
                             {$faq.title_faqmulti|escape:'html'}
                         </button>
-                    </h2>
+                    </h3>
 
                     <div id="{$collapseId}"
                          class="accordion-collapse collapse {if $isOpen}show{/if}"
@@ -43,9 +48,9 @@
                         </div>
 
                     </div>
-                </div>
+                </article>
             {/foreach}
 
         </div>
-    </div>
+    </section>
 {/if}

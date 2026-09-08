@@ -80,13 +80,18 @@ class FrontendController
 
             if (!file_exists($template)) return '';
 
-            return $view->fetch($template, [
-                'magix_faqmulti_data' => [
-                    'module' => $itemType,
-                    'items'  => $faqs,
-                    'seo'    => $faqJsonLd
-                ]
+            // 1. On assigne les variables à l'instance Smarty (comme dans Boot.php)
+            $view->assign('magix_faqmulti_data', [
+                'module' => $itemType,
+                'items'  => $faqs,
+                'seo'    => $faqJsonLd
             ]);
+
+            // 2. On génère un identifiant de cache UNIQUE pour cet élément précis
+            $cacheId = 'faqmulti_' . $itemType . '_' . $itemId . '_' . $idLang;
+
+            // 3. On appelle fetch en lui passant le template et l'identifiant de cache unique
+            return $view->fetch($template, $cacheId);
 
         } catch (\Throwable $e) {
             return "";
